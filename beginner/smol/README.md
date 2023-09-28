@@ -1,0 +1,13 @@
+# Iam very smol
+
+Oppgave tekst
+
+```txt
+UEsDBBQAAAAIAAmbPFeaKuBodAAAAE8AAAAIAAAAZmlsZS50eHQFAKEKwkD0gZweHAwMFg0qh9HiL9xwwWBZtoh+gMkx2NbHysrChTEGtx8YayvLFzYuHAabGNU/8FjGGLpmdoE/grUVrfobpw95He3L55t8SH3I7uPERruFO/8OHp1oIc6Bw9qXCqc63/ITK/zjDyuZVhsAMFBLAQIUABQAAAAIAAmbPFeaKuBodAAAAE8AAAAIAAAAAAAAAAAAAAAAAAAAAABmaWxlLnR4dFBLBQYAAAAAAQABADYAAACaAAAAAAA=
+```
+
+# Løsning
+
+flagget er komprimentert med: base64(zip(gzip(zlib(flag))))
+
+PHOENIX{c0mp4c7}
