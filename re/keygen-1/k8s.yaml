@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: datasnok
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: datasnok
+  name: keygen-1-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: keygen-1
+  template:
+    metadata:
+      labels:
+        app: keygen-1
+    spec:
+      containers:
+      - name: keygen-1
+        image: harbor.k8s.phoenixlan.no/datasnok/keygen-1:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: FLAG
+          value: "PHOENIX{pro_k3y93N_H4XxoR}"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keygen-1-service
+  namespace: datasnok
+spec:
+  type: ClusterIP
+  selector:
+    app: keygen-1
+  ports:
+  - name: http
+    port: 80
+    targetPort: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keygen-1-ingress
+  namespace: datasnok
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keygen-1-service
+            port:
+              name: http
+    host: keygen-1-datasnok.k8s.phoenixlan.no
+  tls:
+  - hosts:
+    - keygen-1-datasnok.k8s.phoenixlan.no
+    secretName: ingress-tls
