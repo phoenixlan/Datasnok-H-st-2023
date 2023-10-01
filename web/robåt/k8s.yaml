@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: datasnok
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: datasnok
+  name: robaat-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: robaat
+  template:
+    metadata:
+      labels:
+        app: robaat
+    spec:
+      containers:
+      - name: robaat
+        image: harbor.k8s.phoenixlan.no/datasnok/robaat:latest
+        ports:
+        - containerPort: 4000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: robaat-service
+  namespace: datasnok
+spec:
+  type: ClusterIP
+  selector:
+    app: robaat
+  ports:
+  - name: http
+    port: 80
+    targetPort: 4000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: robaat-ingress
+  namespace: datasnok
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: robaat-service
+            port:
+              name: http
+    host: robaat-datasnok.k8s.phoenixlan.no
+  tls:
+  - hosts:
+    - robaat-datasnok.k8s.phoenixlan.no
+    secretName: ingress-tls

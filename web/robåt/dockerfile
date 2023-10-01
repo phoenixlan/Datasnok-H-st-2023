@@ -1,0 +1,13 @@
+FROM node:current-alpine
+
+WORKDIR robots
+
+COPY package.json .
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 4000/TCP
+
+CMD [ "node", "."]

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="utf-8" />
+    <title>Vault</title>
+  </head>
+  <body>
+    <h1>Lås opp vaulten</h1>
+    <form onsubmit="return false;">
+      <input id="password" type="password" placeholder="Passord" />
+      <input id="submit" type="button" value="Lås opp" />
+    </form>
+    <p id="out"></p>
+    <script type="module">
+      import init, { unlock_vault } from "./ctf_wasm.js";
+      const initPromise = init();
+
+      const passwordElement = document.getElementById("password");
+      const submitElement = document.getElementById("submit");
+      const outElement = document.getElementById("out");
+
+      submitElement.addEventListener("click", (e) => {
+        initPromise.then(() => {
+          outElement.innerText = unlock_vault(passwordElement.value);
+        });
+        return false;
+      });
+    </script>
+  </body>
+</html>

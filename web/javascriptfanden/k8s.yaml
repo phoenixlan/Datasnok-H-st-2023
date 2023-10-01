@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: datasnok
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: datasnok
+  name: javascriptfanden-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: javascriptfanden
+  template:
+    metadata:
+      labels:
+        app: javascriptfanden
+    spec:
+      containers:
+      - name: javascriptfanden
+        image: harbor.k8s.phoenixlan.no/datasnok/javascriptfanden:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: FLAG
+          value: "PHOENIX{pro_k3y93N_H4XxoR}"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: javascriptfanden-service
+  namespace: datasnok
+spec:
+  type: ClusterIP
+  selector:
+    app: javascriptfanden
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: javascriptfanden-ingress
+  namespace: datasnok
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: javascriptfanden-service
+            port:
+              name: http
+    host: jsfanden-datasnok.k8s.phoenixlan.no
+  tls:
+  - hosts:
+    - jsfanden-datasnok.k8s.phoenixlan.no
+    secretName: ingress-tls
